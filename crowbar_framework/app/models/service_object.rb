@@ -75,8 +75,8 @@ class ServiceObject
     proposal = Proposal.find_by(barclamp: "crowbar")
 
     result = false
-    unless proposal.nil? or proposal["attributes"].nil? or proposal["attributes"]["crowbar"].nil?
-      if not proposal["attributes"]["crowbar"]["simple_proposal_ui"].nil?
+    unless proposal.nil? || proposal["attributes"].nil? || proposal["attributes"]["crowbar"].nil?
+      unless proposal["attributes"]["crowbar"]["simple_proposal_ui"].nil?
         result = proposal["attributes"]["crowbar"]["simple_proposal_ui"]
       end
     end
@@ -1466,6 +1466,12 @@ class ServiceObject
       node.save
     end
     true
+  end
+
+  def add_role_to_proposal_instance_and_node(barclamp, instance, name, newrole)
+    role = RoleObject.find_role_by_name "#{instance}-config-#{inst}"
+    prop = Proposal.find_by(barclamp: "dns", name: inst)
+    add_role_to_instance_and_node(barclamp, instance, name, prop, role, newrole)
   end
 
   #

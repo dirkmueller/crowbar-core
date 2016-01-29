@@ -63,17 +63,15 @@ class NtpService < ServiceObject
     if state == "discovered"
       @logger.debug("NTP transition: discovered state for #{name} for #{state}")
       role = RoleObject.find_role_by_name "ntp-config-#{inst}"
-      db = Proposal.find_by(barclamp: "ntp", name: inst)
-
       if role.override_attributes["ntp"]["elements"]["ntp-server"].nil? or
          role.override_attributes["ntp"]["elements"]["ntp-server"].empty?
         @logger.debug("NTP transition: make sure that ntp-server role is on first: #{name} for #{state}")
-        result = add_role_to_instance_and_node("ntp", inst, name, db, role, "ntp-server")
+        result = add_role_to_proposal_instance_and_node("ntp", inst, name, "ntp-server")
       else
         node = NodeObject.find_node_by_name name
         unless node.role? "ntp-server"
           @logger.debug("NTP transition: make sure that ntp-client role is on all nodes but first: #{name} for #{state}")
-          result = add_role_to_instance_and_node("ntp", inst, name, db, role, "ntp-client")
+          result = add_role_to_proposal_instance_and_node("ntp", inst, name, "ntp-client")
         end
       end
 

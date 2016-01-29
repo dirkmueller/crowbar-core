@@ -63,17 +63,16 @@ class LoggingService < ServiceObject
     if state == "discovered"
       @logger.debug("Logging transition: discovered state for #{name} for #{state}")
       role = RoleObject.find_role_by_name "logging-config-#{inst}"
-      db = Proposal.find_by(barclamp: "logging", name: inst)
 
       if role.override_attributes["logging"]["elements"]["logging-server"].nil? or
          role.override_attributes["logging"]["elements"]["logging-server"].empty?
         @logger.debug("Logging transition: make sure that logging-server role is on first: #{name} for #{state}")
-        result = add_role_to_instance_and_node("logging", inst, name, db, role, "logging-server")
+        result = add_role_to_proposal_instance_and_node("logging", inst, name, "logging-server")
       else
         node = NodeObject.find_node_by_name name
         unless node.role? "logging-server"
           @logger.debug("Logging transition: make sure that logging-client role is on all nodes but first: #{name} for #{state}")
-          result = add_role_to_instance_and_node("logging", inst, name, db, role, "logging-client")
+          result = add_role_to_proposal_instance_and_node("logging", inst, name, "logging-client")
         end
       end
 

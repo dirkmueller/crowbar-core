@@ -560,7 +560,8 @@ class BarclampController < ApplicationController
       #
 
       if params[:submit] == t("barclamp.proposal_show.save_proposal")
-        @proposal = Proposal.find_by(barclamp: params[:barclamp], name: params[:id] || params[:name])
+        @proposal = Proposal.find_by(barclamp: params[:barclamp],
+                                     name: params[:id] || params[:name])
 
         begin
           @proposal["attributes"][params[:barclamp]] = JSON.parse(params[:proposal_attributes])
@@ -571,7 +572,8 @@ class BarclampController < ApplicationController
           flash_and_log_exception(e)
         end
       elsif params[:submit] == t("barclamp.proposal_show.commit_proposal")
-        @proposal = Proposal.find_by(barclamp: params[:barclamp], name: params[:id] || params[:name])
+        @proposal = Proposal.find_by(barclamp: params[:barclamp],
+                                     name: params[:id] || params[:name])
 
         begin
           @proposal["attributes"][params[:barclamp]] = JSON.parse(params[:proposal_attributes])

@@ -72,22 +72,19 @@ class ProvisionerService < ServiceObject
     #
     if state == "discovered"
       @logger.debug("Provisioner transition: discovered state for #{name} for #{state}")
-      db = Proposal.find_by(barclamp: "provisioner", name: inst)
-
       #
       # Add the first node as the provisioner server
       #
       if role.override_attributes["provisioner"]["elements"]["provisioner-server"].nil?
         @logger.debug("Provisioner transition: if we have no provisioner add one: #{name} for #{state}")
-        add_role_to_instance_and_node("provisioner", inst, name, db, role, "provisioner-server")
+        add_role_to_proposal_instance_and_node("provisioner", inst, name, "provisioner-server")
 
         # Reload the roles
-        db.reload
         role = RoleObject.find_role_by_name "provisioner-config-#{inst}"
       end
 
       @logger.debug("Provisioner transition: Make sure that base is on everything: #{name} for #{state}")
-      result = add_role_to_instance_and_node("provisioner", inst, name, db, role, "provisioner-base")
+      result = add_role_to_proposal_instance_and_node("provisioner", inst, name, "provisioner-base")
 
       if !result
         @logger.error("Provisioner transition: existing discovered state for #{name} for #{state}: Failed")
@@ -125,9 +122,8 @@ class ProvisionerService < ServiceObject
       end
     end
     if state == "hardware-installing"
-      role = RoleObject.find_role_by_name "provisioner-config-#{inst}"
-      db = Proposal.find_by(barclamp: "provisioner", name: inst)
-      add_role_to_instance_and_node("provisioner",inst,name,db,role,"provisioner-bootdisk-finder")
+      add_role_to_proposal_instance_and_node("provisioner", inst, name,
+                                             "provisioner-bootdisk-finder")
 
       # ensure target platform is set before we claim a disk for boot OS
       node = NodeObject.find_node_by_name(name)

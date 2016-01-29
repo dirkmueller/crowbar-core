@@ -48,9 +48,7 @@ class IpmiService < ServiceObject
     #
     if state == "discovering"
       @logger.debug("IPMI transition: discovering state for #{name}")
-      role = RoleObject.find_role_by_name "ipmi-config-#{inst}"
-      db = Proposal.find_by(barclamp: "ipmi", name: inst)
-      result = add_role_to_instance_and_node("ipmi", inst, name, db, role, "ipmi-discover")
+      result = add_role_to_proposal_instance_and_node("ipmi", inst, name, "ipmi-discover")
       @logger.debug("ipmi transition: leaving from discovering state for #{name}")
       a = [200, { name: name }] if result
       a = [400, "Failed to add role to node"] unless result
@@ -62,16 +60,15 @@ class IpmiService < ServiceObject
     #
     if state == "discovered"
       @logger.debug("IPMI transition: discovered state for #{name}")
-      role = RoleObject.find_role_by_name "ipmi-config-#{inst}"
-      db = Proposal.find_by(barclamp: "ipmi", name: inst)
-      result = add_role_to_instance_and_node("ipmi", inst, name, db, role, "ipmi-configure")
+      result = add_role_to_proposal_instance_and_node("ipmi", inst, name, "ipmi-configure")
 
       node = NodeObject.find_node_by_name(name)
       # Add the bmc routing roles as appropriate.
       bmc_role = node.admin? ? "bmc-nat-router" : "bmc-nat-client"
-      result = add_role_to_instance_and_node("ipmi", inst, name, db, role, bmc_role)
+      result = add_role_to_proposal_instance_and_node("ipmi", inst, name, bmc_role)
 
       ns = NetworkService.new @logger
+      role = RoleObject.find_role_by_name "ipmi-config-#{inst}"
       if role and !role.default_attributes["ipmi"]["use_dhcp"]
         @logger.debug("IPMI transition: Allocate bmc address for #{name}")
         suggestion = node["crowbar_wall"]["ipmi"]["address"] rescue nil
