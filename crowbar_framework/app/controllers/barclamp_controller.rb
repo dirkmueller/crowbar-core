@@ -269,7 +269,7 @@ class BarclampController < ApplicationController
         end
         format.html do
           @proposals = message.map do |proposal|
-            Proposal.where(barclamp: @bc_name, name: proposal).first
+            Proposal.find_by(barclamp: @bc_name, name: proposal)
           end
         end
       else
@@ -560,7 +560,7 @@ class BarclampController < ApplicationController
       #
 
       if params[:submit] == t("barclamp.proposal_show.save_proposal")
-        @proposal = Proposal.where(barclamp: params[:barclamp], name: params[:id] || params[:name]).first
+        @proposal = Proposal.find_by(barclamp: params[:barclamp], name: params[:id] || params[:name])
 
         begin
           @proposal["attributes"][params[:barclamp]] = JSON.parse(params[:proposal_attributes])
@@ -571,7 +571,7 @@ class BarclampController < ApplicationController
           flash_and_log_exception(e)
         end
       elsif params[:submit] == t("barclamp.proposal_show.commit_proposal")
-        @proposal = Proposal.where(barclamp: params[:barclamp], name: params[:id] || params[:name]).first
+        @proposal = Proposal.find_by(barclamp: params[:barclamp], name: params[:id] || params[:name])
 
         begin
           @proposal["attributes"][params[:barclamp]] = JSON.parse(params[:proposal_attributes])
@@ -605,7 +605,7 @@ class BarclampController < ApplicationController
                 ServiceObject.proposal_to_role(@proposal, params[:barclamp])
               )
               missing_barclamps = deps.map do |dep|
-                prop = Proposal.where(barclamp: dep["barclamp"], name: dep["inst"]).first
+                prop = Proposal.find_by(barclamp: dep["barclamp"], name: dep["inst"])
                 queued   = prop["deployment"][dep["barclamp"]]["crowbar-queued"] rescue false
                 deployed = (prop["deployment"][dep["barclamp"]]["crowbar-status"] == "success") rescue false
                 dep["barclamp"] if queued || !deployed
@@ -731,10 +731,10 @@ class BarclampController < ApplicationController
         Proposal.all
       else
         [
-          Proposal.where(
+          Proposal.find_by(
             barclamp: params[:barclamp],
             name: params[:name]
-          ).first
+          )
         ]
       end
 

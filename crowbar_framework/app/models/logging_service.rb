@@ -62,8 +62,8 @@ class LoggingService < ServiceObject
     #
     if state == "discovered"
       @logger.debug("Logging transition: discovered state for #{name} for #{state}")
-      db = Proposal.where(barclamp: "logging", name: inst).first
       role = RoleObject.find_role_by_name "logging-config-#{inst}"
+      db = Proposal.find_by(barclamp: "logging", name: inst)
 
       if role.override_attributes["logging"]["elements"]["logging-server"].nil? or
          role.override_attributes["logging"]["elements"]["logging-server"].empty?
